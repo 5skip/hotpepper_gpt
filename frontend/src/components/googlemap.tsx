@@ -46,10 +46,15 @@ const GoogleMap: FC = () => {
   if (!isLoaded) return <div className="flex justify-center items-center h-full text-gray-500">Loading map...</div>;
 
   return (
-    <div className="p-4 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
+    <div className="p-8 bg-gray-300 h-screen mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-white p-3 rounded-lg">
         <div className="mb-4 p-4 bg-gray-100 border-b-4 border-gray-500 rounded-lg shadow-lg">
-          <h1 className="text-3xl font-extrabold mb-2 text-gray-800">レストランマップ</h1>
+          <div className="flex flex-row justify-between">
+          <h1 className="text-2xl font-extrabold mb-2 text-gray-800">Azure OpenAIで遊んでみた</h1>
+          <div className="text-xs text-gray-500">
+            Powered by <a className="underline text-blue-500" href="http://webservice.recruit.co.jp/">ホットペッパー Webサービス</a>
+          </div>
+          </div>
           <p className="text-gray-700">地図をクリックして近くのレストランを検索</p>
         </div>
         <div className="border border-gray-300 rounded-lg overflow-hidden shadow-lg mb-4">
@@ -63,9 +68,9 @@ const GoogleMap: FC = () => {
           </GoogleMapComponent>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-4">
+        <div className="bg-white ">
           <h2 className="text-xl font-semibold mb-4">近くのレストラン</h2>
-          <ul className="space-y-4 max-h-80 overflow-y-auto">
+          <ul className=" max-h-[400px] shadow-lg  rounded-lg overflow-y-auto">
             {restaurants.length === 0 ? (
               <p className="text-gray-500">地図をクリックしてください</p>
             ) : (
@@ -99,6 +104,7 @@ const GoogleMap: FC = () => {
         </div>
       )}
     </div>
+    
   );
 };
 

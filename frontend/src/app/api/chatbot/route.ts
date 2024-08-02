@@ -1,26 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { AzureOpenAI } from 'openai';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const endpoint = process.env.NEXT_PUBLIC_AZURE_OPENAI_ENDPOINT;
+const apiKey = process.env.NEXT_PUBLIC_AZURE_OPENAI_API_KEY;
 
 export async function POST(req: NextRequest) {
-  const { prompt } = await req.json();
+  const { messages } = await req.json();
 
-  if (!prompt) {
-    return NextResponse.json({ message: 'Prompt is required' }, { status: 400 });
+  if (!messages) {
+    return NextResponse.json({ message: 'Messages are required' }, { status: 400 });
+  }
+
+  if (!endpoint || !apiKey) {
+    console.error('Endpoint or API key is missing.');
+    return NextResponse.json({ message: 'Endpoint or API key is missing' }, { status: 500 });
   }
 
   try {
-    const stream = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [{ role: 'user', content: prompt }],
-      stream: true,
+    const client = new AzureOpenAI({ endpoint, apiKey, apiVersion: "2024-04-01-preview", deployment: "sample" });
+
+    const result = await client.chat.completions.create({
+      messages,
+      model: "",
     });
 
-    let assistantMessage = '';
-    for await (const chunk of stream) {
-      assistantMessage += chunk.choices[0]?.delta?.content || '';
-    }
+    const assistantMessage = result.choices[0].message.content;
 
     return NextResponse.json({ message: assistantMessage }, { status: 200 });
   } catch (error) {

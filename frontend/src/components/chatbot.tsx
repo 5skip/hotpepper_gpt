@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -14,25 +14,25 @@ const ChatBot: React.FC<{ restaurants: any[] }> = ({ restaurants }) => {
 
     const systemMessage = {
       user: false,
-      text: '適切なレストランを検索中...',
+      text: '返信中・・・',
     };
     setMessages((prevMessages) => [...prevMessages, systemMessage]);
 
-    const prompt = `
-      あなたは以下の詳細に基づいてレストランの推薦を提供する役立つアシスタントです。ユーザーのリクエストに応じてリストの中から適切なおすすめをリスト形式で1~3個提示してあげてください。適切な場所に改行コードを入れてユーザーが見やすいようにしてください：
-      ${restaurants.map((restaurant, index) => `
-        ${index + 1}. 名前: ${restaurant.name}
-           住所: ${restaurant.address}
-           ジャンル: ${restaurant.genre}
-           予算: ${restaurant.budget}
-           アクセス: ${restaurant.access}
-           URL: ${restaurant.urls}
-      `).join('\n')}
-      ユーザーのリクエスト: ${input}
-    `;
+    const promptMessages = [
+      { role: "system", content: "あなたは以下の詳細に基づいてレストランの推薦を提供する役立つアシスタントです。ユーザーのリクエストに応じてリストの中から適切なおすすめをリスト形式で1~3個提示してあげてください。適切な場所に改行コードを入れてユーザーが見やすいようにしてください：" },
+      ...restaurants.map((restaurant, index) => ({
+        role: "system",
+        content: `${index + 1}. 名前: ${restaurant.name}\n住所: ${restaurant.address}\nジャンル: ${restaurant.genre}\n予算: ${restaurant.budget}\nアクセス: ${restaurant.access}\nURL: ${restaurant.urls}`
+      })),
+      ...messages.map(message => ({
+        role: message.user ? "user" : "assistant",
+        content: message.text
+      })),
+      { role: "user", content: input }
+    ];
 
     try {
-      const response = await axios.post('/api/chatbot', { prompt });
+      const response = await axios.post('/api/chatbot', { messages: promptMessages });
 
       const assistantMessage = {
         user: false,
@@ -52,9 +52,9 @@ const ChatBot: React.FC<{ restaurants: any[] }> = ({ restaurants }) => {
   };
 
   return (
-    <div className="chatbot-container border border-gray-300 rounded-lg shadow-lg mt-28 p-4 bg-white">
-      <h2 className="text-xl font-semibold mb-4">レストランチャットボット</h2>
-      <div className="messages-container mb-4 h-96 overflow-y-scroll border border-gray-200 p-2 rounded-md">
+    <div className="chatbot-container border border-gray-300 rounded-lg shadow-lg  p-4 bg-white">
+      <h2 className="text-xl font-semibold mb-4">チャットで検索(Azure OpenAI)</h2>
+      <div className="messages-container mb-4 h-[720px] overflow-y-scroll border border-gray-200 p-2 rounded-md">
         {messages.map((message, index) => (
           <div key={index} className={`mb-2 ${message.user ? 'text-right' : 'text-left'}`}>
             <span
@@ -70,7 +70,7 @@ const ChatBot: React.FC<{ restaurants: any[] }> = ({ restaurants }) => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           className="flex-1 border border-gray-300 p-2 rounded-md"
-          placeholder="レストランの推薦を聞いてください..."
+          placeholder="メッセージを入力"
         />
         <button onClick={handleSendMessage} className="ml-2 bg-purple-500 text-white p-2 rounded-md">送信</button>
       </div>
